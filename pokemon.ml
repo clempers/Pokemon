@@ -460,6 +460,7 @@ let calc_stat base ev =
   (2 * base) + 31 + (if ev then 63 else 0) + 5
 
 let buffRef = ref false
+let disableRef = ref false
 let loadRef = ref false
 let gridW = ref 500
 let displayW = ref 3
@@ -915,7 +916,7 @@ let drawSquare grid (x, y) =
   let p = find (x,y) grid in
   let x' = x* !displayW in
   let y' = y* !displayW in
-  Graphics.set_color (if p.enabled then pokemon_to_color p.t1 p.t2 else Graphics.black);
+  Graphics.set_color (if not !disableRef || p.enabled then pokemon_to_color p.t1 p.t2 else Graphics.black);
   Graphics.fill_rect x' y' !displayW !displayW
   (*Graphics.set_color Graphics.black;
   Graphics.moveto x' y';
@@ -1285,9 +1286,9 @@ let rec loadUpdate saveFile i=
         else
                 begin
                         try
-                        bscanf saveFile "%c" (fun x -> x)
-                        with End_of_file ->();
-                        []
+                                bscanf saveFile "%c" (fun x -> x);
+                                []
+                        with End_of_file -> []
                 end
 
 let loadUpdates saveFile =
@@ -1316,7 +1317,10 @@ let rec loadGridBattle grid table saveFile =
             end
 
 let rec gridBattle grid ?saveFile updates =
-  drawGrid grid updates;
+  if !disableRef then
+    drawGrid grid (allChaanged())
+  else
+    drawGrid grid updates;
   let drawn_over =
     wait_next_event [Poll] |>
     checkStatus grid false in
@@ -1349,6 +1353,7 @@ let rec interactive () =
 let set_args () =
   Arg.parse [
     ("-b", Set buffRef, "Enables pokemon to use buff attacks") ;
+    ("-disable", Set disableRef, "Enables graphic enabled UI") ;
     ("-w", Set_int gridW, "Sets the width of the pokemon grid") ;
     ("-d", Set_int displayW, "Sets the display width of each pokemon") ;
     ("-load", Set loadRef, "Instructs program to load from file") ;
