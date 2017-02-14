@@ -1,3 +1,5 @@
 *.cmi
 *.cmo
 *.swp
+camlprog.exe
+pokemon
