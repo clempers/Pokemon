@@ -1271,6 +1271,12 @@ let rec checkStatus grid paused status =
 
 let allChanged () = changeRange 0 0 !gridW !gridW
 
+let wait_for start time =
+  if (Unix.gettimeofday()) -. start < time then
+    wait_for start time
+  else
+    ()
+
 let short_wait f =
   let t = Unix.gettimeofday() in
   let rec waiting ()=
@@ -1297,13 +1303,14 @@ let loadUpdates saveFile =
 
 let rec loadGridBattle grid table saveFile =
   try
+  let currentTime = Unix.gettimeofday() in
   let updates = loadUpdates saveFile in
   tailMap (fun (x,y,id) -> update (x,y) (Hashtbl.find table id) grid) updates;
   let drawn_over =
     wait_next_event [Poll] |>
     checkStatus grid false in
   drawGrid grid (drawn_over @ (tailMap (fun (x,y,_) -> (x,y)) updates));
-  short_wait 0.01;
+  wait_for currentTime 0.01;
   Graphics.synchronize();
   loadGridBattle grid table saveFile
   with End_of_file -> 
