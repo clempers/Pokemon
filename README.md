@@ -22,3 +22,12 @@ In order to load the past run add the flag -load as an example.
 ./pokemon -s save.txt -load
 
 This will then read the file save.txt and replay the run.
+
+Some other flags to know about:
+
+-b       : enable pokemon to learn and use buff moves
+-w x     : sets the width of the pokemon grid to x.   So there will be x * x pokemon
+-d x     : sets the display width of each pokemon to x.  -d 1 makes each pokemon a pixel
+-disable : blacks out all pokemon not being used in calculation.  Looks really cool
+-s x     : Saves output to x if not loading.  Loads from x if is loading
+-load    : Loads previous run instead of running new one.  Requires -s to be used as well.
