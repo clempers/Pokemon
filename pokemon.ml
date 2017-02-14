@@ -1284,7 +1284,9 @@ let rec loadUpdate saveFile i=
         change :: (loadUpdate saveFile (i-1))
         else
                 begin
-                        bscanf saveFile "%c" (fun x -> x);
+                        try
+                        bscanf saveFile "%c" (fun x -> x)
+                        with End_of_file ->();
                         []
                 end
 
@@ -1296,11 +1298,22 @@ let rec loadGridBattle grid table saveFile =
   try
   let updates = loadUpdates saveFile in
   tailMap (fun (x,y,id) -> update (x,y) (Hashtbl.find table id) grid) updates;
-  drawGrid grid (tailMap (fun (x,y,_) -> (x,y)) updates);
+  let drawn_over =
+    wait_next_event [Poll] |>
+    checkStatus grid false in
+  drawGrid grid (drawn_over @ (tailMap (fun (x,y,_) -> (x,y)) updates));
   short_wait 0.01;
   Graphics.synchronize();
   loadGridBattle grid table saveFile
-  with End_of_file -> ()
+  with End_of_file -> 
+    if gridDone grid then
+            drawInfoPane 0 0 grid
+    else
+            begin
+                    Graphics.movteto 0 0;
+                    Graphics.set_color Graphics.black;
+                    Graphics.draw_string "Done";
+            end
 
 let rec gridBattle grid ?saveFile updates =
   drawGrid grid updates;
