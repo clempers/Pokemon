@@ -5,6 +5,8 @@ In order to compile it requires the ocaml compiler but no additional packages. T
 
 ocamlc -o pokemon graphics.cma unix.cma pokemon.ml
 
+As of right now the compiler will complain a ton about warnings and stuff, but ignore it.
+
 the output will then be named pokemon.
 
 When running the program clicking anywhere will bring up an info window of the pokemon clicked on.
